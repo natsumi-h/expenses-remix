@@ -1,55 +1,125 @@
 import {
-  Form,
+  Link,
   Links,
   LiveReload,
   Meta,
+  Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
+  useMatches,
+  useRouteError,
 } from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import sharedStyles from "./styles/shared.css";
+import Error from "./components/util/Error";
 
-export default function App() {
+type DocumentProps = {
+  title?: string | number;
+  children: React.ReactNode;
+};
+
+function Document({ children }: DocumentProps) {
+  const matches: any = useMatches();
+  const disableJs = matches.some((match: any) => match.handle?.disableJs);
+
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <Links />
       </head>
       <body>
-        <div id="sidebar">
-          <h1>Remix Contacts</h1>
-          <div>
-            <Form id="search-form" role="search">
-              <input
-                id="q"
-                aria-label="Search contacts"
-                placeholder="Search"
-                type="search"
-                name="q"
-              />
-              <div id="search-spinner" aria-hidden hidden={true} />
-            </Form>
-            <Form method="post">
-              <button type="submit">New</button>
-            </Form>
-          </div>
-          <nav>
-            <ul>
-              <li>
-                <a href={`/contacts/1`}>Your Name</a>
-              </li>
-              <li>
-                <a href={`/contacts/2`}>Your Friend</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
+        {/* <MainHeader /> */}
+        {/* <Outlet /> */}
+        {children}
         <ScrollRestoration />
-        <Scripts />
+        {!disableJs && <Scripts />}
         <LiveReload />
       </body>
     </html>
   );
 }
+
+export default function App() {
+  return (
+    <Document>
+      <Outlet />
+    </Document>
+  );
+}
+
+export function ErrorBoundary() {
+  const error: any = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    // stringfy number
+    const status = error.status.toString();
+    return (
+      <Document title={status}>
+        <main>
+          <Error title={status}>
+            <p>{error.data}</p>
+            <p>
+              Back to <Link to="/">safety</Link>
+            </p>
+          </Error>
+        </main>
+      </Document>
+    );
+  } else if (error) {
+    return (
+      <Document title={error.status}>
+        <main>
+          <Error title={error.status}>
+            <p>{error.message}</p>
+            <p>
+              Back to <Link to="/">safety</Link>
+            </p>
+          </Error>
+        </main>
+      </Document>
+    );
+  } else {
+    return (
+      <Document title="Something went wrong">
+        <main>
+          <Error title="Something went wrong">
+            <p>Something went wrong!</p>
+            <p>
+              Back to <Link to="/">safety</Link>
+            </p>
+          </Error>
+        </main>
+      </Document>
+    );
+  }
+}
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: sharedStyles },
+];
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Root | Remix" },
+    {
+      property: "og:title",
+      content: "Very cool app",
+    },
+    {
+      name: "description",
+      content: "This app is the best",
+    },
+  ];
+};
