@@ -25,4 +25,5 @@ model User{
    email String
     password String
     expenses Expense[]
+    plan String
 }

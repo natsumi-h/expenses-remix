@@ -10,7 +10,7 @@ type AuthInput = {
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
 // sessionのタイプをcookieに設定
-const sessionStorage = createCookieSessionStorage({
+export const sessionStorage = createCookieSessionStorage({
   cookie: {
     secure: process.env.NODE_ENV === "production",
     secrets: [SESSION_SECRET as string],
@@ -80,6 +80,7 @@ export async function signup({ email, password }: AuthInput) {
     data: {
       email,
       password: passwordHash,
+      plan: "free",
     },
   });
   return createUserSession(user.id, "/expenses");
