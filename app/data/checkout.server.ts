@@ -18,9 +18,8 @@ export async function checkout() {
     success_url: `${YOUR_DOMAIN}/thanks?session_id={CHECKOUT_SESSION_ID}`,
     // cancel_url: `${YOUR_DOMAIN}?canceled=true`,
   });
-  console.log(stripeSession);
-
   throw redirect(stripeSession.url as string);
+  // return stripeSession
 }
 
 export async function updateUsersPlan(userId: string) {

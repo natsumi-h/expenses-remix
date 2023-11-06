@@ -9,7 +9,7 @@ import { ExpenseInput } from "./ExpenseInput";
 export const expenseValidator = withZod(
   z.object({
     title: z.string().min(1, { message: "Title is required" }),
-    amount: z.string().min(0, { message: "Amount is required" }),
+    amount: z.string().min(1, { message: "Amount is required" }),
     date: z.string().min(1, { message: "Date is required" }),
   })
 );
